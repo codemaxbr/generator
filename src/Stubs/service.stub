@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\{{Model}};
+use App\Repositories\{{Model}}Repository;
+use Illuminate\Support\Facades\DB;
+use Webpatser\Uuid\Uuid;
+
+class {{Model}}Service
+{
+    /**
+     * @var {{Model}}Repository
+     */
+    private ${{model}}Repository;
+    private ${{model}}_id;
+
+    /**
+     * {{Model}}Service constructor.
+     */
+    public function __construct({{Model}}Repository ${{model}}Repository)
+    {
+        $this->{{model}}Repository = ${{model}}Repository;
+    }
+
+    /**
+     * Define o ID do {{Model}} para manipulação
+     */
+    public function setId($id)
+    {
+        $this->{{model}}_id = $id;
+    }
+
+    /**
+     * Retorna o número total de registros.
+     * @return integer
+     */
+    public function total()
+    {
+        return (int) DB::table('{{models}}')->count();
+    }
+
+    /**
+     * Lista todos os registros
+     * @return array
+     */
+    public function get{{Models}}($paginate = null)
+    {
+        $result = $this->{{model}}Repository->orderBy('id', 'desc');
+        if(!is_null($paginate)){
+            return $result->paginate($paginate);
+        }else{
+            return $result->all();
+        }
+    }
+
+    /**
+     * Lista todos os registros a partir de uma Busca
+     * @return array
+     */
+    public function search{{Models}}($coluna, $busca, $paginate = null)
+    {
+        $result = $this->{{model}}Repository->findWhere([$coluna, 'LIKE', "%{$busca}%"])->orderBy('id', 'desc');
+        if(!is_null($paginate)){
+            return $result->paginate($paginate);
+        }else{
+            return $result->all();
+        }
+    }
+
+    /**
+     * Cria um(a) novo(a) {{Model}}
+     * @param Array
+     */
+    public function new{{Model}}($dados)
+    {
+        if(!empty($dados)){
+            return $this->{{model}}Repository->create($dados);
+        }
+    }
+
+    /**
+     * Define o status de um(a) {{Model}}
+     * @require $this->setId($id);
+     */
+    public function setStatus($status)
+    {
+        if(!empty($status)){
+            return $this->{{model}}Repository->update(['status' => $status], $this->{{model}}_id);
+        }
+    }
+
+    /**
+     * Atualiza dados de um(a) {{Model}}
+     * @param Array
+     * @require $this->setId($id);
+     */
+    public function update{{Model}}($dados)
+    {
+        if(!empty($dados)){
+            return $this->{{model}}Repository->update($dados, $this->{{model}}_id);
+        }
+    }
+
+    /**
+     * Remover um {{Model}}
+     * @require $this->setId($id);
+     */
+    public function delete{{Model}}()
+    {
+        if($this->{{model}}Repository->delete($this->{{model}}_id)){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+
+    /**
+     * Retorna os dados do(a) {{Model}}
+     * @require $this->setId($id);
+     * @return Object
+     */
+    public function get{{Model}}()
+    {
+        return $this->{{model}}Repository->find($this->{{model}}_id)->first();
+    }
+
+    /**
+     * Retorna os campos de Importação da tabela "{{models}}"
+     */
+    public function getFields()
+    {
+        $temp = DB::select(DB::raw("SHOW FULL FIELDS FROM {{models}}"));
+        $fields = array();
+        foreach ($temp as $val){
+            $fields[$val->Field] = $val->Comment;
+        }
+
+        return array_filter($fields);
+    }
+}

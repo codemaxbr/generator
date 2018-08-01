@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use {{namespace}}Models\{{Model}};
+use App\Services\{{Model}}Service;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\{{Model}}Request;
+
+class {{Models}}Controller extends Controller
+{
+    private ${{model}}Service;
+
+    /**
+     * {{Models}}Controller constructor.
+     */
+    public function __construct({{Model}}Service ${{model}}Service)
+    {
+        $this->{{model}}Service = ${{model}}Service;
+    }
+
+    /**
+     * Página => Lista Cadastros
+     * @method GET
+     */
+	public function index()
+	{
+		${{models}} = $this->{{model}}Service->get{{Models}}(20);
+		return view('{{models}}.index', compact('{{models}}'));
+	}
+
+    /**
+     * Página => Ver detalhes ({{Model}})
+     * Exibe todos os dados do cadastro e seus relacionamentos.
+     * @method GET
+     */
+    public function show($id)
+    {
+        $this->{{model}}Service->setId($id);
+        ${{model}} = $this->{{model}}Service->get{{Model}}();
+        return view('{{models}}.show', compact('{{model}}'));
+    }
+
+    /**
+     * Página => Formulário de Cadastro
+     * @method GET
+     */
+	public function create()
+	{
+		return view('{{models}}.add');
+	}
+
+	/**
+     * Página => Formulário para Editar Cadastro
+     * @method GET
+     */
+    public function edit($id)
+    {
+        $this->{{model}}Service->setId($id);
+        ${{model}} = $this->{{model}}Service->get{{Model}}();
+        return view('{{models}}.edit', compact('{{model}}'));
+    }
+
+    /**
+     * Submit => Remover um(a) {{Model}}
+     * @method DELETE
+     */
+    public function destroy($id)
+    {
+        $this->{{model}}Service->setId($id);
+        $this->{{model}}Service->delete{{Model}}();
+
+        return redirect()->route('{{models}}.index')->with('success', '{{Model}} removido(a) com sucesso.');
+    }
+
+    /**
+     * Submit => Remover uma lista de {{Models}}
+     * @method POST
+     */
+    public function destroyJSON(Request $request)
+    {
+        $input = (object) $request->all();
+        $itens = (object) $input->selecionados;
+
+        foreach ($itens as $item){
+            $this->{{model}}Service->delete{{Model}}($item['id']);
+        }
+
+        $request->session()->flash('status', 'Todos os cadastros selecionados foram removidos.');
+        return response()->json(true);
+    }
+
+    /**
+     * Submit => Criar um(a) novo(a) {{Model}}
+     * @method POST
+     */
+	public function store({{Model}}Request $request)
+	{
+		${{model}} = {{Model}}::create($request->all());
+		return redirect()->route('{{models}}.show', ${{model}}->id)->with('success', '{{Model}} adicionado com sucesso.');
+	}
+
+    /**
+     * Submit => Atualiza dados de um(a) {{Model}}
+     * @method POST
+     */
+	public function update({{Model}}Request $request, $id)
+	{
+        $this->{{model}}Service->setId($id);
+        $this->{{model}}Service->update{{Model}}($request->all());
+		return redirect()->route('{{models}}.show', $id)->with('success', 'Dados de {{model}} atualizado(s).');
+	}
+
+    /**
+     * Submit => Buscar um(a) {{model}} (Busca Simples)
+     * @method GET
+     */
+    public function search(Request $request)
+    {
+        if($request->busca != null){
+            ${{models}} = $this->{{model}}Service->search{{Models}}('nome', $request->busca, 20);
+        }else{
+            ${{models}} = $this->{{model}}Service->get{{Models}}(20);
+        }
+
+        return view('{{models}}.index')->with([
+            '{{models}}' => ${{models}}->appends(request()->query())
+        ]);
+    }
+
+    /**
+     * Submit => Buscar um(a) {{model}} (Busca Avançada)
+     * @method GET
+     */
+    public function searchAdvanced(Request $request)
+    {
+        if(isset($request->filtro)){
+            $filtro = $request->filtro;
+        }else{
+            $filtro = null;
+        }
+
+        ${{models}} = $this->{{model}}Service->search{{Models}}_filter($filtro);
+
+        return view('{{models}}.index')->with([
+            '{{models}}' => ${{models}}->appends(request()->query())
+        ]);
+    }
+}

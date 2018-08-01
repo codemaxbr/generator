@@ -1,0 +1,23 @@
+
+/*
+|--------------------------------------------------------------------------
+| Rotas => {{Models}}
+|--------------------------------------------------------------------------
+*/
+
+Route::group(['prefix' => '/{{models}}'], function (){
+
+    // Somente as rotas de página
+    Route::get('/', '{{Models}}Controller@index')->name('{{models}}.index');
+    Route::get('/{id}/detalhes', '{{Models}}Controller@show')->name('{{models}}.show');
+    Route::get('/{id}/editar', '{{Models}}Controller@edit')->name('{{models}}.edit');
+    Route::get('/novo', '{{Models}}Controller@create')->name('{{models}}.create');
+
+    // Submits
+    Route::get('/buscar', '{{Models}}Controller@search')->name('{{models}}.search');
+    Route::get('/buscaAvancada', '{{Models}}Controller@searchAdvanced')->name('{{models}}.search.advanced');
+    Route::post('/novo', '{{Models}}Controller@store')->name('{{models}}.store');
+    Route::put('/{id}/atualizar', '{{Models}}Controller@update')->name('{{models}}.update');
+    Route::delete('/{id}/excluir', '{{Models}}Controller@destroy')->name('{{models}}.destroy');
+    Route::post('/excluir', '{{Models}}Controller@destroyJSON')->name('{{models}}.destroy_json');
+});
